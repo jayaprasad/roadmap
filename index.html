@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1400">
+  <title>Realtime 3D Earth - Explore Your Future</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  
+  <!-- Navigation Top Bar -->
+  <header class="main-header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon"></div>
+        <span>FUTURE-X</span>
+      </div>
+    </div>
+    
+    <div class="header-center">
+      <button class="mobile-menu-toggle" id="menu-toggle" aria-label="Toggle Menu">
+        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="glass-nav-pill" id="main-nav">
+        <nav class="nav-links">
+          <a href="#" class="nav-item active">Home</a>
+          <a href="#" class="nav-item">Explore</a>
+          <a href="#" class="nav-item">Resources</a>
+          <a href="#" class="nav-item">About Us</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-profile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Profile
+      </button>
+    </div>
+  </header>
+
+  <!-- Canvas Background -->
+  <div id="canvas-container"></div>
+  <canvas id="particle-canvas"></canvas>
+  <div class="vignette"></div>
+
+  <!-- Cards Section (Hidden initially, revealed via zoom) -->
+  <section id="cards-section" class="cards-section">
+    <div class="cards-container">
+
+      <!-- Card 1: After 10th -->
+      <a href="after-10th.html" class="glass-card glass-card--link" id="card-after-10th">
+        <div class="card-badge">Grade 10+</div>
+        <div class="card-icon">🚀</div>
+        <h3>After 10th</h3>
+        <p class="card-subtitle">Diploma · ITI · Science / Commerce / Arts</p>
+        <p class="card-desc">Explore streams, vocational courses, and diploma programs to kickstart your career right after Class 10.</p>
+        <div class="card-tags">
+          <span class="tag">Diploma</span>
+          <span class="tag">ITI</span>
+          <span class="tag">Streams</span>
+        </div>
+        <div class="card-cta">Explore Paths <span class="cta-arrow">→</span></div>
+      </a>
+
+      <!-- Card 2: After 12th -->
+      <a href="#" class="glass-card glass-card--link">
+        <div class="card-badge">Grade 12+</div>
+        <div class="card-icon">🎓</div>
+        <h3>After 12th</h3>
+        <p class="card-subtitle">Engineering · Medicine · Law · Design</p>
+        <p class="card-desc">Discover undergraduate degrees, entrance exams, and professional courses that match your passion and aptitude.</p>
+        <div class="card-tags">
+          <span class="tag">B.Tech</span>
+          <span class="tag">MBBS</span>
+          <span class="tag">BBA</span>
+        </div>
+        <div class="card-cta">Explore Paths <span class="cta-arrow">→</span></div>
+      </a>
+
+      <!-- Card 3: Learn Skills -->
+      <a href="#" class="glass-card glass-card--link">
+        <div class="card-badge">Any Age</div>
+        <div class="card-icon">⚡</div>
+        <h3>Learn Skills</h3>
+        <p class="card-subtitle">Coding · Design · Marketing · Finance</p>
+        <p class="card-desc">Pick up in-demand skills through curated online courses, bootcamps, and certifications — learn at your own pace.</p>
+        <div class="card-tags">
+          <span class="tag">Free</span>
+          <span class="tag">Online</span>
+          <span class="tag">Certified</span>
+        </div>
+        <div class="card-cta">Start Learning <span class="cta-arrow">→</span></div>
+      </a>
+
+    </div>
+  </section>
+
+
+
+  <!-- About Us Overlay (transparent, 3D background visible) -->
+  <section id="about-page" class="about-page">
+    <div class="about-page-content">
+      <button class="about-back-btn" id="about-back-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <span>Back</span>
+      </button>
+      <div class="about-page-hero">
+        <h1 class="about-page-title">About <span class="glow-text">FUTURE-X</span></h1>
+        <p class="about-page-subtitle">Empowering the next generation to make confident career decisions.</p>
+      </div>
+      <div class="about-content">
+        <div class="about-card">
+          <h3>Our Mission</h3>
+          <p>FUTURE-X is dedicated to bridging the gap between students and their dream careers. We use AI-powered guidance, curated learning paths, and expert mentorship to help everyone find their true calling.</p>
+        </div>
+        <div class="about-stats">
+          <div class="stat-item">
+            <div class="stat-number">50K+</div>
+            <div class="stat-label">Students Guided</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">200+</div>
+            <div class="stat-label">Career Paths</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">95%</div>
+            <div class="stat-label">Satisfaction</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">30+</div>
+            <div class="stat-label">Expert Mentors</div>
+          </div>
+        </div>
+        <div class="about-card">
+          <h3>Our Vision</h3>
+          <p>We envision a world where every student has access to personalized career guidance, regardless of their background. Through technology and compassion, we're making that vision a reality.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Bottom Progress Bar (Desktop) -->
+  <div class="scroll-progress">
+    <div class="progress-bar"></div>
+    <!-- Scroll Down Prompt -->
+    <div class="scroll-prompt">
+      <div class="arrow-up">↑</div>
+      <div class="scroll-text">Scroll to explore</div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mb-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </a>
+    <a href="#explore" class="mb-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+      <span>Explore</span>
+    </a>
+    <a href="#" class="mb-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5"/><path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 002-2v-6l-3.4-6.9A2 2 0 0017 4H7a2 2 0 00-1.5 1.1z"/></svg>
+      <span>Inbox</span>
+    </a>
+    <a href="#" class="mb-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="main.js"></script>
+</body>
+</html>

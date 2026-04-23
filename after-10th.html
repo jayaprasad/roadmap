@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1400">
+  <title>After 10th - FUTURE-X</title>
+  <meta name="description" content="Explore your career options after 10th grade - Class 11 & 12, Diploma Courses, ITI, and Paramedical Courses.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    /* ---- Page-specific overrides ---- */
+    body {
+      overflow: hidden;
+    }
+
+    /* 3D background */
+    #canvas-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      /* Match main page dimness */
+      filter: brightness(0.88) contrast(0.92);
+    }
+
+    /* Back Button */
+    .back-btn {
+      position: fixed;
+      top: 1.3rem;
+      left: 4rem;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: color 0.3s ease;
+      cursor: pointer;
+      background: none;
+      border: none;
+      pointer-events: auto;
+    }
+    .back-btn:hover {
+      color: var(--accent-cyan);
+      text-shadow: 0 0 12px rgba(0, 242, 255, 0.4);
+    }
+    .back-btn svg {
+      transition: transform 0.3s ease;
+    }
+    .back-btn:hover svg {
+      transform: translateX(-4px);
+    }
+
+    /* Hero section */
+    .page-hero {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 80px;
+    }
+
+    .page-title-wrapper {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+
+    .page-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-title {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .page-title span {
+      color: var(--accent-cyan);
+      text-shadow: 0 0 30px rgba(0, 242, 255, 0.4), 0 0 60px rgba(0, 242, 255, 0.15);
+    }
+
+    .page-subtitle {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    /* Options Cards Grid */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1000px;
+      width: 90%;
+      perspective: 1200px;
+    }
+
+    .sub-options {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 1000px;
+    }
+
+    .option-card {
+      position: relative;
+      background: rgba(10, 10, 18, 0.78);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-radius: 28px;
+      padding: 2.8rem 1.8rem 2.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      text-align: center;
+      min-height: 320px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transform: translateY(60px);
+      transition: box-shadow 0.4s ease, transform 0.3s ease;
+    }
+
+    .option-card:hover {
+      box-shadow: 0 30px 80px rgba(0, 242, 255, 0.25), 0 0 0 1px rgba(0, 242, 255, 0.3);
+      transform: translateY(-6px) scale(1.02) !important;
+    }
+
+    /* Dynamic glowing border (same trick as main cards) */
+    .option-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(
+        300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(0, 242, 255, 0.9),
+        rgba(0, 120, 255, 0.2) 40%,
+        rgba(255, 255, 255, 0.06) 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0.35;
+      transition: opacity 0.4s ease;
+    }
+
+    .option-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Large icon area */
+    .card-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.4rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 16px rgba(0, 242, 255, 0.5));
+    }
+
+    /* Glowing number badge */
+    .card-number {
+      position: absolute;
+      top: 1.4rem;
+      right: 1.4rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid rgba(0, 242, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+    }
+
+    .option-card h3 {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.3px;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 0 12px rgba(0, 242, 255, 0.2);
+    }
+
+    .option-card p {
+      font-size: 0.87rem;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+    }
+
+    /* Subtle bottom glow accent line */
+    .card-accent-line {
+      position: absolute;
+      bottom: 0; left: 10%; right: 10%;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .option-card:hover .card-accent-line {
+      opacity: 1;
+    }
+
+    /* Explore button on card */
+    .card-explore-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 1.2rem;
+      padding: 0.45rem 1.2rem;
+      border-radius: 100px;
+      background: rgba(0, 242, 255, 0.08);
+      border: 1px solid rgba(0, 242, 255, 0.2);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+    }
+
+    .card-explore-btn:hover {
+      background: rgba(0, 242, 255, 0.15);
+      border-color: rgba(0, 242, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+    }
+
+    /* Responsive */
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-hero { 
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* Align cards to bottom over earth */
+        padding-top: 100px; 
+        padding-bottom: 380px; /* Aligned on top of the 100% visible globe */
+        overflow-y: auto; 
+      }
+      body { overflow: auto; }
+      .page-title { font-size: 2.2rem; }
+      .back-btn { top: 1.5rem; left: 1.5rem; }
+      
+      .options-grid { 
+        display: flex; 
+        flex-direction: column;
+        gap: 1rem; 
+        width: 100%;
+        max-width: 100%;
+        padding: 0 1rem;
+      }
+      .option-card {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 1.5rem;
+        min-height: auto;
+        border-radius: 20px;
+        backdrop-filter: blur(35px);
+      }
+      .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0;
+        margin-right: 1.5rem;
+      }
+      .option-card h3 {
+        margin-bottom: 0.25rem;
+        font-size: 1.15rem;
+      }
+      .option-card p {
+        font-size: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .card-number {
+        position: static;
+        width: 24px;
+        height: 24px;
+        font-size: 0.6rem;
+        margin-right: 1rem;
+      }
+      .card-explore-btn { display: none; } /* Hide read more button, whole card is tappable */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D Space Background -->
+  <div id="canvas-container"></div>
+  <div class="vignette"></div>
+
+  <!-- Navigation Header (same as main) -->
+  <header class="main-header">
+    <div class="header-left"></div>
+
+    <div class="header-center">
+      <button class="mobile-menu-toggle" id="menu-toggle" aria-label="Toggle Menu">
+        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="glass-nav-pill" id="main-nav">
+        <nav class="nav-links">
+          <a href="#card-class11" class="nav-item">Class 11 &amp; 12</a>
+          <a href="#card-diploma" class="nav-item">Diploma &amp; ITI</a>
+          <a href="#card-paramedical" class="nav-item">Paramedical</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-profile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Profile
+      </button>
+    </div>
+  </header>
+
+  <!-- Back Button -->
+  <a href="index.html#explore" class="back-btn" id="dynamic-back-btn" style="text-decoration: none;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+    <span id="back-btn-text">Back</span>
+  </a>
+
+  <!-- Main Page Content -->
+  <main class="page-hero">
+    <!-- Title -->
+    <div class="page-title-wrapper" id="page-title">
+      <p class="page-eyebrow">Explore Your Path</p>
+      <h1 class="page-title">Options After <span>10th</span></h1>
+      <p class="page-subtitle">Choose the path that shapes your future</p>
+    </div>
+
+    <!-- 4 Option Cards -->
+    <div class="options-grid" id="options-grid">
+
+      <!-- Card 1: Class 11 & 12 -->
+      <div class="option-card" id="card-class11" data-index="0">
+        <div class="card-number">01</div>
+        <div class="card-icon">🎓</div>
+        <h3>Class 11 &amp; 12</h3>
+        <p>Continue your academic journey with Science, Commerce, or Arts streams to open doors to top universities and professional degrees.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Card 2: Diploma & ITI -->
+      <div class="option-card" id="card-diploma" data-index="1">
+        <div class="card-number">02</div>
+        <div class="card-icon">📐</div>
+        <h3>Diploma &amp; ITI</h3>
+        <p>Gain practical engineering, technical, and vocational skills through diploma programs and ITI trades to enter the workforce.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Card 3: Paramedical Courses -->
+      <div class="option-card" id="card-paramedical" data-index="2">
+        <div class="card-number">03</div>
+        <div class="card-icon">🏥</div>
+        <h3>Paramedical Courses <span style="display: block; font-size: 0.75rem; font-weight: 400; opacity: 0.7; margin-top: 4px;">(Assistant Level Only)</span></h3>
+        <p>Step into the healthcare field through paramedical programs — from nursing and lab technology to physiotherapy and radiology.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+    </div>
+
+    <!-- 3 Sub Option Cards for Class 11 & 12 -->
+    <div class="options-grid sub-options" id="sub-class11">
+
+      <!-- Science -->
+      <div class="option-card sub-card" data-index="0">
+        <div class="card-number">01</div>
+        <div class="card-icon">🔬</div>
+        <h3>Science</h3>
+        <p>Pursue Engineering, Medical, or pure sciences. Subjects include Physics, Chemistry, Maths, and Biology.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Commerce -->
+      <div class="option-card sub-card" data-index="1">
+        <div class="card-number">02</div>
+        <div class="card-icon">📊</div>
+        <h3>Commerce</h3>
+        <p>Dive into Business, Accountancy, and Economics. Ideal for aspiring Chartered Accountants and Entrepreneurs.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Arts -->
+      <div class="option-card sub-card" data-index="2">
+        <div class="card-number">03</div>
+        <div class="card-icon">🎨</div>
+        <h3>Arts / Humanities</h3>
+        <p>Explore careers in Civil Services, Journalism, Psychology, Design, and Literature.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+    </div>
+
+    <!-- 3 Sub Option Cards for Diploma Courses -->
+    <div class="options-grid sub-options" id="sub-diploma">
+
+      <!-- Computer & IT -->
+      <div class="option-card sub-card" data-index="0">
+        <div class="card-number">01</div>
+        <div class="card-icon">💻</div>
+        <h3>Computer & IT</h3>
+        <p>Master the digital world through software development, cybersecurity, and information technology.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Core -->
+      <div class="option-card sub-card" data-index="1">
+        <div class="card-number">02</div>
+        <div class="card-icon">⚙️</div>
+        <h3>Core</h3>
+        <p>Build the foundations of industry with Mechanical, Civil, and Electrical engineering expertise.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Designing -->
+      <div class="option-card sub-card" data-index="2">
+        <div class="card-number">03</div>
+        <div class="card-icon">🎨</div>
+        <h3>Designing</h3>
+        <p>Unleash your creativity in Fashion, Interior, or Graphic design to shape the visual world.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+    </div>
+
+    <!-- 2 Sub Option Cards for Paramedical Courses -->
+    <div class="options-grid sub-options" id="sub-paramedical" style="grid-template-columns: repeat(2, 1fr); max-width: 660px; margin: 0 auto;">
+
+      <!-- Patient Care -->
+      <div class="option-card sub-card" data-index="0">
+        <div class="card-number">01</div>
+        <div class="card-icon">🩺</div>
+        <h3>Patient Care</h3>
+        <p>Focus on direct healthcare assistance, nursing support, and therapy through dedicated patient care training.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+      <!-- Lab & Diagnostic -->
+      <div class="option-card sub-card" data-index="1">
+        <div class="card-number">02</div>
+        <div class="card-icon">🔬</div>
+        <h3>Lab &amp; Diagnostic</h3>
+        <p>Specialize in medical laboratory technology, radiology, and critical diagnostic procedures.</p>
+        <a href="#" class="card-explore-btn">Explore →</a>
+        <div class="card-accent-line"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mb-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </a>
+    <a href="index.html#explore" class="mb-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+      <span>Explore</span>
+    </a>
+    <a href="#" class="mb-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5"/><path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 002-2v-6l-3.4-6.9A2 2 0 0017 4H7a2 2 0 00-1.5 1.1z"/></svg>
+      <span>Inbox</span>
+    </a>
+    <a href="#" class="mb-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script>
+    // ---- 3D Earth Space Background ----
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 8000);
+    camera.position.z = 10; // Morning stable Z position
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Match main page: ACES tonemapping + reduced exposure for cinematic dimness
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.72;
+    container.appendChild(renderer.domElement);
+
+    // IST Time Logic for Day/Night Sync
+    function getISTHour() {
+        const d = new Date();
+        const utcMs = d.getTime() + (d.getTimezoneOffset() * 60000);
+        const istMs = utcMs + (3600000 * 5.5);
+        return new Date(istMs).getHours();
+    }
+    const istHour = getISTHour();
+    const IS_DAY = istHour >= 6 && istHour < 19;
+    
+    const loadingManager = new THREE.LoadingManager();
+    loadingManager.onError = (url) => console.error(`Texture failed: ${url}`);
+    const textureLoader = new THREE.TextureLoader(loadingManager);
+
+    // Helper for Round Stars
+    function createCircleTexture(size = 64) {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const center = size / 2;
+        const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+        return new THREE.CanvasTexture(canvas);
+    }
+    const starTexture = createCircleTexture();
+    
+    const spaceGroup = new THREE.Group();
+    // Stars
+    const starCount = 3000;
+    const starVerts = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i++) starVerts[i] = (Math.random() - 0.5) * 60;
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starVerts, 3));
+    spaceGroup.add(new THREE.Points(starGeo, new THREE.PointsMaterial({
+        color: 0xffffff, size: 0.1, transparent: true, opacity: 0.75,
+        map: starTexture, depthWrite: false, blending: THREE.AdditiveBlending
+    })));
+    spaceGroup.scale.set(1.2, 1.2, 1.2);
+    scene.add(spaceGroup);
+    
+    const isMobile = window.innerWidth < 768;
+
+    // Globe group — Earth positioned so ~35% shows at the bottom
+    const globeGroup = new THREE.Group();
+    // FORCED DESKTOP SCALE (2.8)
+    const gScale = 2.8;
+    globeGroup.scale.set(gScale, gScale, gScale);
+    // FORCED DESKTOP POSITION (-6.2)
+    globeGroup.position.y = -6.2;
+    globeGroup.rotation.x = 0.05;
+    scene.add(globeGroup);
+
+    // Realistic textures (same as main page)
+    const EARTH_DAY_MAP  = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
+    const EARTH_NIGHT_MAP = 'https://unpkg.com/three-globe/example/img/earth-night.jpg';
+    const EARTH_BUMP_MAP  = 'https://unpkg.com/three-globe/example/img/earth-topology.png';
+    const EARTH_SPEC_MAP  = 'https://unpkg.com/three-globe/example/img/earth-water.png';
+    const CLOUD_MAP       = 'https://unpkg.com/three-globe/example/img/clouds.png';
+
+    const earthMat = IS_DAY
+        ? new THREE.MeshStandardMaterial({
+            map:          textureLoader.load(EARTH_DAY_MAP),
+            bumpMap:      textureLoader.load(EARTH_BUMP_MAP),
+            bumpScale:    0.12,
+            roughnessMap: textureLoader.load(EARTH_SPEC_MAP),
+            roughness:    0.65,
+            metalness:    0.08,
+            emissive:          new THREE.Color(0x001122),
+            emissiveIntensity: 0.18
+          })
+        : new THREE.MeshStandardMaterial({
+            map:              textureLoader.load(EARTH_DAY_MAP),
+            bumpMap:          textureLoader.load(EARTH_BUMP_MAP),
+            bumpScale:        0.08,
+            roughnessMap:     textureLoader.load(EARTH_SPEC_MAP),
+            roughness:        0.85,
+            metalness:        0.1,
+            emissiveMap:      textureLoader.load(EARTH_NIGHT_MAP),
+            emissive:         new THREE.Color(0xffeeaa),
+            emissiveIntensity: 1.6
+          });
+
+    const earthMesh = new THREE.Mesh(new THREE.SphereGeometry(2, 96, 96), earthMat);
+    earthMesh.rotation.y = 4.5;
+    globeGroup.add(earthMesh);
+
+    // Cloud layer (alpha-channel, realistic)
+    const cloudMat = new THREE.MeshStandardMaterial({
+        alphaMap: textureLoader.load(CLOUD_MAP),
+        transparent: true, opacity: IS_DAY ? 0.92 : 0.45,
+        color: 0xffffff, roughness: 1.0, metalness: 0.0, depthWrite: false
+    });
+    const cloudMesh = new THREE.Mesh(new THREE.SphereGeometry(2.04, 96, 96), cloudMat);
+    globeGroup.add(cloudMesh);
+
+    // Fresnel atmosphere shader (same as main page)
+    const atmosVert = `
+        varying vec3 vNormal; varying vec3 vViewDir;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+            vViewDir = normalize(-mvPos.xyz);
+            gl_Position = projectionMatrix * mvPos;
+        }`;
+    const atmosFrag = `
+        uniform vec3 glowColor; uniform float fresnelPower; uniform float opacity;
+        varying vec3 vNormal; varying vec3 vViewDir;
+        void main() {
+            float fresnel = pow(1.0 - abs(dot(vNormal, vViewDir)), fresnelPower);
+            gl_FragColor = vec4(glowColor, fresnel * opacity);
+        }`;
+
+    globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(2.18, 64, 64),
+        new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor:    { value: new THREE.Color(IS_DAY ? 0x4fc3f7 : 0x0d47a1) },
+                fresnelPower: { value: IS_DAY ? 3.5 : 4.5 },
+                opacity:      { value: IS_DAY ? 1.0 : 0.85 }
+            },
+            vertexShader: atmosVert, fragmentShader: atmosFrag,
+            transparent: true, side: THREE.FrontSide,
+            blending: THREE.AdditiveBlending, depthWrite: false
+        })
+    ));
+    globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(2.38, 64, 64),
+        new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor:    { value: new THREE.Color(IS_DAY ? 0x90caf9 : 0x1565c0) },
+                fresnelPower: { value: IS_DAY ? 5.5 : 7.0 },
+                opacity:      { value: IS_DAY ? 0.55 : 0.35 }
+            },
+            vertexShader: atmosVert, fragmentShader: atmosFrag,
+            transparent: true, side: THREE.BackSide,
+            blending: THREE.AdditiveBlending, depthWrite: false
+        })
+    ));
+
+    // Lighting (matches main page)
+    scene.add(new THREE.AmbientLight(0xc8d8ff, IS_DAY ? 0.35 : 0.015));
+    const sunLight = new THREE.DirectionalLight(IS_DAY ? 0xfff4d6 : 0xeef0ff, IS_DAY ? 8.0 : 3.5);
+    sunLight.position.set(30, 18, 40);
+    scene.add(sunLight);
+    const cameraLight = new THREE.PointLight(0x223344, IS_DAY ? 0.6 : 0.3, 100);
+    scene.add(cameraLight);
+    if (IS_DAY) {
+        const skyFill = new THREE.DirectionalLight(0x7ab3e0, 2.2);
+        skyFill.position.set(-8, -12, 6);
+        scene.add(skyFill);
+        const rimLight = new THREE.PointLight(0xffcc88, 3.5, 40);
+        rimLight.position.set(10, 6, -10);
+        scene.add(rimLight);
+    } else {
+        const blueLight = new THREE.PointLight(0x0a1a3f, 0.8, 60);
+        blueLight.position.set(-12, -6, -12);
+        scene.add(blueLight);
+    }
+
+    
+    const clock = new THREE.Clock();
+    function animate() {
+        requestAnimationFrame(animate);
+        try {
+            const time = clock.getElapsedTime();
+            cameraLight.position.copy(camera.position); // Always lit from front
+            earthMesh.rotation.y += 0.0005;
+            cloudMesh.rotation.y += 0.0007; 
+            const cloudPulse = Math.sin(time * 0.5) * 0.01;
+            cloudMesh.scale.set(1 + cloudPulse, 1 + cloudPulse, 1 + cloudPulse);
+            spaceGroup.rotation.y = time * 0.003;
+            renderer.render(scene, camera);
+        } catch (e) {
+            console.error("3D Error:", e);
+        }
+    }
+    animate();
+    renderer.render(scene, camera); // Force instant draw for reliability
+    
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ---- Mouse glow tracking on cards ----
+    document.querySelectorAll('.option-card, .glass-nav-pill').forEach(el => {
+      el.addEventListener('mousemove', e => {
+        const rect = el.getBoundingClientRect();
+        el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+        el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.setProperty('--mouse-x', '50%');
+        el.style.setProperty('--mouse-y', '50%');
+      });
+    });
+
+    // ---- GSAP entrance animations ----
+    gsap.to('#page-title', {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+      delay: 0.1
+    });
+
+    gsap.to('.option-card:not(.sub-card)', {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+      stagger: 0.12,
+      delay: 0.35
+    });
+
+    // ---- Drill-down Logic (Refactored) ----
+    const cardClass11 = document.getElementById('card-class11');
+    const cardDiploma = document.getElementById('card-diploma');
+    const cardParamedical = document.getElementById('card-paramedical');
+    const optionsGrid = document.getElementById('options-grid');
+    const subClass11 = document.getElementById('sub-class11');
+    const subDiploma = document.getElementById('sub-diploma');
+    const subParamedical = document.getElementById('sub-paramedical');
+    const pageTitle = document.querySelector('.page-title');
+    const pageSubtitle = document.querySelector('.page-subtitle');
+    const backBtn = document.getElementById('dynamic-back-btn');
+    const topNavItems = document.querySelectorAll('.main-header .nav-item');
+    
+    let currentLevel = 'root';
+    let isAnimating = false;
+
+    // Section Data
+    const sections = {
+        class11: {
+            el: subClass11,
+            title: 'Class 11 & 12 <span>Streams</span>',
+            subtitle: 'Choose your core specialization',
+            navIndex: 0
+        },
+        diploma: {
+            el: subDiploma,
+            title: 'Diploma <span>&amp; ITI</span>',
+            subtitle: 'Technical and professional training paths',
+            navIndex: 1
+        },
+        paramedical: {
+            el: subParamedical,
+            title: 'Paramedical <span>Courses</span>',
+            subtitle: 'Healthcare and diagnostic training programs (Assistant Level Only)',
+            navIndex: 2
+        }
+    };
+
+    function enterSection(sectionKey) {
+        if (currentLevel !== 'root' || isAnimating) return;
+        const section = sections[sectionKey];
+        if (!section) return;
+
+        currentLevel = sectionKey;
+        isAnimating = true;
+        
+        topNavItems.forEach(item => item.classList.remove('active'));
+        topNavItems[section.navIndex].classList.add('active'); 
+        
+        const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+        
+        // 1. Zoom out current cards
+        tl.to(optionsGrid, { 
+            scale: 1.5, 
+            opacity: 0, 
+            duration: 0.6, 
+            ease: 'power2.inOut',
+            onComplete: () => { optionsGrid.style.display = 'none'; }
+        }, 0);
+        
+        // 2. Zoom in 3D camera
+        tl.to(camera.position, { z: 4.8, duration: 1.2, ease: "power2.inOut" }, 0);
+        
+        // 3. Update Text
+        tl.to(pageTitle, { opacity: 0, duration: 0.3 }, 0)
+          .to(pageSubtitle, { opacity: 0, duration: 0.3 }, 0)
+          .call(() => {
+              pageTitle.innerHTML = section.title;
+              pageSubtitle.innerText = section.subtitle;
+          })
+          .to(pageTitle, { opacity: 1, duration: 0.6 }, 0.4)
+          .to(pageSubtitle, { opacity: 1, duration: 0.6 }, 0.4);
+          
+        // 4. Zoom in and reveal new cards
+        tl.call(() => {
+            section.el.style.display = 'grid';
+            gsap.set(section.el.querySelectorAll('.sub-card'), { opacity: 0, scale: 0.8, y: 30 });
+        }, null, 0.4);
+        
+        tl.to(section.el.querySelectorAll('.sub-card'), {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            stagger: 0.15
+        }, 0.5);
+    }
+
+    function exitSection() {
+        if (currentLevel === 'root' || isAnimating) return;
+        const section = sections[currentLevel];
+        if (!section) return;
+
+        const oldLevel = currentLevel;
+        currentLevel = 'root';
+        isAnimating = true;
+        topNavItems[section.navIndex].classList.remove('active');
+        
+        const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+        
+        // Zoom out sub cards
+        tl.to(section.el.querySelectorAll('.sub-card'), {
+            opacity: 0,
+            scale: 0.8,
+            y: 30,
+            duration: 0.5,
+            ease: 'power2.in',
+            stagger: -0.1,
+            onComplete: () => { section.el.style.display = 'none'; }
+        }, 0);
+        
+        // Revert 3D camera
+        tl.to(camera.position, { z: 6.5, duration: 1.2, ease: "power2.inOut" }, 0);
+        
+        // Update Text back
+        tl.to(pageTitle, { opacity: 0, duration: 0.3 }, 0)
+          .to(pageSubtitle, { opacity: 0, duration: 0.3 }, 0)
+          .call(() => {
+              pageTitle.innerHTML = 'Options After <span>10th</span>';
+              pageSubtitle.innerText = 'Choose the path that shapes your future';
+          })
+          .to(pageTitle, { opacity: 1, duration: 0.6 }, 0.4)
+          .to(pageSubtitle, { opacity: 1, duration: 0.6 }, 0.4);
+          
+        // Revert parent cards
+        tl.call(() => {
+            optionsGrid.style.display = 'grid';
+        }, null, 0.4);
+        
+        tl.to(optionsGrid, {
+            scale: 1,
+            opacity: 1,
+            duration: 0.7,
+            ease: "power2.out"
+        }, 0.5);
+    }
+
+    cardClass11.addEventListener('click', (e) => {
+        e.preventDefault();
+        enterSection('class11');
+    });
+
+    cardDiploma.addEventListener('click', (e) => {
+        e.preventDefault();
+        enterSection('diploma');
+    });
+
+    cardParamedical.addEventListener('click', (e) => {
+        e.preventDefault();
+        enterSection('paramedical');
+    });
+
+    backBtn.addEventListener('click', (e) => {
+        if(currentLevel !== 'root') {
+            e.preventDefault();
+            exitSection();
+        }
+    });
+
+    // Nav Item Click
+    topNavItems[0].addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentLevel !== 'root' && currentLevel !== 'class11') exitSection();
+        enterSection('class11');
+    });
+
+    topNavItems[1].addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentLevel !== 'root' && currentLevel !== 'diploma') exitSection();
+        enterSection('diploma');
+    });
+
+    topNavItems[2].addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentLevel !== 'root' && currentLevel !== 'paramedical') exitSection();
+        enterSection('paramedical');
+    });
+
+    // Scroll Interaction
+    window.addEventListener('wheel', (e) => {
+        if (isAnimating) return;
+
+        if (e.deltaY < -40) { // Scroll Up
+            if (currentLevel !== 'root') {
+                exitSection();
+            } else {
+                // Go back to Home / Explore
+                window.location.href = 'index.html#explore';
+            }
+        }
+    });
+
+    // Hamburger menu toggle logic
+    const menuToggle = document.getElementById('menu-toggle');
+    const mainNav = document.getElementById('main-nav');
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+        mainNav.querySelectorAll('.nav-item').forEach(link => {
+          link.addEventListener('click', () => mainNav.classList.remove('active'));
+        });
+      });
+    }
+
+  </script>
+
+</body>
+</html>
